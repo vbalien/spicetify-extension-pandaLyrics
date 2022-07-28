@@ -10,18 +10,26 @@ export default class Socket {
     this.socket = new WebSocket(`ws://localhost:${this.port}/pandaLyrics`);
     this.socket.addEventListener("open", (event) => {
       Spicetify.showNotification("PandaLyrics Connected.");
-      clearInterval(this.tickTimer);
-      this.tickTimer = setInterval(this.tick.bind(this), 500);
+      if (this.tickTimer) {
+        clearInterval(this.tickTimer);
+      }
+      this.tickTimer = setInterval(this.tick.bind(this), 200);
       this.sendSong();
     });
 
     this.socket.addEventListener("close", (event) => {
+      if (this.tickTimer) {
+        clearInterval(this.tickTimer);
+      }
       setTimeout(() => {
         this.connect();
       }, 1000);
     });
 
     this.socket.addEventListener("error", (event) => {
+      if (this.tickTimer) {
+        clearInterval(this.tickTimer);
+      }
       setTimeout(() => {
         this.connect();
       }, 1000);
