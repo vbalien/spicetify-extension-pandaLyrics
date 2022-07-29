@@ -1,20 +1,22 @@
 import { PandaLyricsEvent } from "./event";
 
-export default class Socket {
+export default class Socket extends EventTarget {
   private socket?: WebSocket;
   private tickTimer?: NodeJS.Timer;
 
-  constructor(private port: number) {}
+  constructor(private port: number) {
+    super();
+  }
 
   connect() {
     this.socket = new WebSocket(`ws://localhost:${this.port}/pandaLyrics`);
     this.socket.addEventListener("open", (event) => {
-      Spicetify.showNotification("PandaLyrics Connected.");
+      this.dispatchEvent(new Event("open"));
       if (this.tickTimer) {
         clearInterval(this.tickTimer);
       }
-      this.tickTimer = setInterval(this.tick.bind(this), 200);
-      this.sendSong();
+      this.tickTimer = setInterval(() => postMessage("requestProgress"), 200);
+      postMessage("requestSong");
     });
 
     this.socket.addEventListener("close", (event) => {
@@ -36,8 +38,7 @@ export default class Socket {
     });
   }
 
-  tick() {
-    const time = Spicetify.Player.getProgress();
+  tick(time: number) {
     this.emitEvent({
       type: "tick",
       data: {
@@ -50,18 +51,7 @@ export default class Socket {
     return this.socket?.readyState === WebSocket.OPEN;
   }
 
-  sendSong() {
-    const data = Spicetify.Player.data || Spicetify.Queue;
-    if (!data || !data.track) {
-      return;
-    }
-    const meta = data.track.metadata;
-    if (!meta) {
-      return;
-    }
-    const title = meta.title;
-    const artist = meta.artist_name;
-
+  sendSong(title: string, artist: string) {
     this.emitEvent({
       type: "songchange",
       data: {
