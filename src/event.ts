@@ -11,6 +11,7 @@ export type SongChangeEvent = PandaLyricsEventBase<
   {
     artist: string;
     title: string;
+    songID: string;
   }
 >;
 export type TickEvent = PandaLyricsEventBase<

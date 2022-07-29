@@ -51,12 +51,13 @@ export default class Socket extends EventTarget {
     return this.socket?.readyState === WebSocket.OPEN;
   }
 
-  sendSong(title: string, artist: string) {
+  sendSong(title: string, artist: string, songID: string) {
     this.emitEvent({
       type: "songchange",
       data: {
         title: title ?? "",
         artist: artist ?? "",
+        songID: songID ?? "",
       },
     });
   }

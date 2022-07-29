@@ -1,7 +1,11 @@
 import Socket from "./socket";
 const PORT = 8999;
 
-function getSong(): { artist?: string; title?: string } | null {
+function getSong(): {
+  artist?: string;
+  title?: string;
+  songID?: string;
+} | null {
   const data = Spicetify.Player.data || Spicetify.Queue;
   if (!data || !data.track) {
     return null;
@@ -12,7 +16,8 @@ function getSong(): { artist?: string; title?: string } | null {
   }
   const title = meta.title;
   const artist = meta.artist_name;
-  return { title, artist };
+  const songID = data.track.uid;
+  return { title, artist, songID };
 }
 
 async function main() {
@@ -33,7 +38,11 @@ async function main() {
           if (!socket.isReady) {
             break;
           }
-          socket.sendSong(payload.data.title, payload.data.artist);
+          socket.sendSong(
+            payload.data.title,
+            payload.data.artist,
+            payload.data.songID
+          );
           break;
       }
     };
