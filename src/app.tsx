@@ -1,35 +1,18 @@
+import { WorkerPostMessage, WorkerPostMessageEvent } from "./event";
 import Socket from "./socket";
+import PandaLyricsWorker from "./worker";
 const PORT = 8999;
-
-function getSong(): {
-  artist?: string;
-  title?: string;
-  songID?: string;
-} | null {
-  const data = Spicetify.Player.data || Spicetify.Queue;
-  if (!data || !data.track) {
-    return null;
-  }
-  const meta = data.track.metadata;
-  if (!meta) {
-    return null;
-  }
-  const title = meta.title;
-  const artist = meta.artist_name;
-  const songID = data.track.uid;
-  return { title, artist, songID };
-}
 
 async function main() {
   if (!navigator.serviceWorker) {
-    // worker inside
+    // worker
     const socket = new Socket(PORT);
     socket.addEventListener("open", () => {
       postMessage("open");
     });
     socket.connect();
 
-    onmessage = ({ data: payload }) => {
+    onmessage = ({ data: payload }: WorkerPostMessageEvent) => {
       switch (payload.type) {
         case "requestTick":
           socket.tick(payload.data);
@@ -41,30 +24,23 @@ async function main() {
           socket.sendSong(
             payload.data.title,
             payload.data.artist,
-            payload.data.songID
+            payload.data.songID,
+            payload.data.is_paused
           );
+          break;
+        case "sendstate":
+          if (!socket.isReady) {
+            break;
+          }
+          socket.sendState(payload.data.is_paused);
           break;
       }
     };
   } else {
-    const worker = new Worker("./extensions/pandaLyrics.js");
-    worker.onmessage = (event) => {
-      switch (event.data) {
-        case "open":
-          Spicetify.showNotification("PandaLyrics Connected.");
-          break;
-        case "requestProgress":
-          const time = Spicetify.Player.getProgress();
-          worker.postMessage({ type: "requestTick", data: time });
-          break;
-        case "requestSong":
-          worker.postMessage({ type: "sendsong", data: getSong() });
-          break;
-      }
-    };
-    Spicetify.Player.addEventListener("songchange", () => {
-      worker.postMessage({ type: "sendsong", data: getSong() });
-    });
+    // renderer
+    if (!window.pandaLyricsWorker) {
+      window.pandaLyricsWorker = new PandaLyricsWorker();
+    }
   }
 }
 

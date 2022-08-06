@@ -51,13 +51,28 @@ export default class Socket extends EventTarget {
     return this.socket?.readyState === WebSocket.OPEN;
   }
 
-  sendSong(title: string, artist: string, songID: string) {
+  sendSong(
+    title?: string,
+    artist?: string,
+    songID?: string,
+    is_paused?: boolean
+  ) {
     this.emitEvent({
       type: "songchange",
       data: {
         title: title ?? "",
         artist: artist ?? "",
         songID: songID ?? "",
+        is_paused,
+      },
+    });
+  }
+
+  sendState(is_paused: boolean) {
+    this.emitEvent({
+      type: "statechange",
+      data: {
+        is_paused,
       },
     });
   }
