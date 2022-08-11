@@ -1,19 +1,19 @@
-import { WorkerPostMessage, WorkerReceiveMessageEvent } from "./event";
+import { WorkerPostMessage, WorkerReceiveMessageEvent } from './types';
 
 export default class PandaLyricsWorker extends Worker {
   constructor() {
-    super("./extensions/pandaLyrics.js");
+    super('./extensions/pandaLyrics.js');
     this.onmessage = this.onMessage.bind(this);
 
-    Spicetify.Player.addEventListener("songchange", () => {
+    Spicetify.Player.addEventListener('songchange', () => {
       this.postMessage({
-        type: "sendsong",
+        type: 'sendsong',
         data: { ...this.getSong(), is_paused: Spicetify.Player.data.is_paused },
       });
     });
-    Spicetify.Player.addEventListener("onplaypause", () => {
+    Spicetify.Player.addEventListener('onplaypause', () => {
       this.postMessage({
-        type: "sendstate",
+        type: 'sendstate',
         data: { is_paused: Spicetify.Player.data.is_paused },
       });
     });
@@ -25,16 +25,16 @@ export default class PandaLyricsWorker extends Worker {
 
   onMessage(event: WorkerReceiveMessageEvent) {
     switch (event.data) {
-      case "open":
-        Spicetify.showNotification("PandaLyrics Connected.");
+      case 'open':
+        Spicetify.showNotification('PandaLyrics Connected.');
         break;
-      case "requestProgress":
+      case 'requestProgress':
         const time = Spicetify.Player.getProgress();
-        this.postMessage({ type: "requestTick", data: time });
+        this.postMessage({ type: 'requestTick', data: time });
         break;
-      case "requestSong":
+      case 'requestSong':
         this.postMessage({
-          type: "sendsong",
+          type: 'sendsong',
           data: {
             ...this.getSong(),
             is_paused: Spicetify.Player.data.is_paused,
@@ -59,7 +59,7 @@ export default class PandaLyricsWorker extends Worker {
     }
     const title = meta.title;
     const artist = meta.artist_name;
-    const songID = data.track.uid;
+    const songID = data.track.uri;
     return { title, artist, songID };
   }
 }

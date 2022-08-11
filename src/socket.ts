@@ -1,4 +1,5 @@
-import { PandaLyricsEvent } from "./event";
+import { PandaLyricsEvent } from './types';
+import { version } from '../package.json';
 
 export default class Socket extends EventTarget {
   private socket?: WebSocket;
@@ -10,16 +11,16 @@ export default class Socket extends EventTarget {
 
   connect() {
     this.socket = new WebSocket(`ws://localhost:${this.port}/pandaLyrics`);
-    this.socket.addEventListener("open", (event) => {
-      this.dispatchEvent(new Event("open"));
+    this.socket.addEventListener('open', () => {
+      this.dispatchEvent(new Event('open'));
       if (this.tickTimer) {
         clearInterval(this.tickTimer);
       }
-      this.tickTimer = setInterval(() => postMessage("requestProgress"), 200);
-      postMessage("requestSong");
+      this.tickTimer = setInterval(() => postMessage('requestProgress'), 200);
+      postMessage('requestSong');
     });
 
-    this.socket.addEventListener("close", (event) => {
+    this.socket.addEventListener('close', () => {
       if (this.tickTimer) {
         clearInterval(this.tickTimer);
       }
@@ -28,7 +29,7 @@ export default class Socket extends EventTarget {
       }, 1000);
     });
 
-    this.socket.addEventListener("error", (event) => {
+    this.socket.addEventListener('error', () => {
       if (this.tickTimer) {
         clearInterval(this.tickTimer);
       }
@@ -40,7 +41,7 @@ export default class Socket extends EventTarget {
 
   tick(time: number) {
     this.emitEvent({
-      type: "tick",
+      type: 'tick',
       data: {
         time,
       },
@@ -58,11 +59,11 @@ export default class Socket extends EventTarget {
     is_paused?: boolean
   ) {
     this.emitEvent({
-      type: "songchange",
+      type: 'songchange',
       data: {
-        title: title ?? "",
-        artist: artist ?? "",
-        songID: songID ?? "",
+        title: title ?? '',
+        artist: artist ?? '',
+        songID: songID ?? '',
         is_paused,
       },
     });
@@ -70,7 +71,7 @@ export default class Socket extends EventTarget {
 
   sendState(is_paused: boolean) {
     this.emitEvent({
-      type: "statechange",
+      type: 'statechange',
       data: {
         is_paused,
       },

@@ -1,3 +1,4 @@
+// Server - Client Protocol
 export type PandaLyricsEvent = SongChangeEvent | TickEvent | StateChangeEvent;
 export type PandaLyricsEventBase<
   T extends string,
@@ -7,7 +8,7 @@ export type PandaLyricsEventBase<
   data: D;
 };
 export type SongChangeEvent = PandaLyricsEventBase<
-  "songchange",
+  'songchange',
   {
     artist: string;
     title: string;
@@ -16,19 +17,20 @@ export type SongChangeEvent = PandaLyricsEventBase<
   }
 >;
 export type TickEvent = PandaLyricsEventBase<
-  "tick",
+  'tick',
   {
     time: number;
   }
 >;
 export type StateChangeEvent = PandaLyricsEventBase<
-  "statechange",
+  'statechange',
   {
     is_paused: boolean;
   }
 >;
 
-type WorkerReceiveMessage = "open" | "requestProgress" | "requestSong";
+// Worker - Renderer Protocol
+type WorkerReceiveMessage = 'open' | 'requestProgress' | 'requestSong';
 export type WorkerReceiveMessageEvent = MessageEvent<WorkerReceiveMessage>;
 
 type WorkerPostMessageBase<
@@ -39,7 +41,7 @@ type WorkerPostMessageBase<
   data: D;
 };
 type WorkerSendSongMessage = WorkerPostMessageBase<
-  "sendsong",
+  'sendsong',
   {
     artist?: string;
     title?: string;
@@ -48,12 +50,12 @@ type WorkerSendSongMessage = WorkerPostMessageBase<
   }
 >;
 type WorkerSendStateMessage = WorkerPostMessageBase<
-  "sendstate",
+  'sendstate',
   {
     is_paused: boolean;
   }
 >;
-type WorkerRequestTickMessage = WorkerPostMessageBase<"requestTick", number>;
+type WorkerRequestTickMessage = WorkerPostMessageBase<'requestTick', number>;
 export type WorkerPostMessage =
   | WorkerSendSongMessage
   | WorkerSendStateMessage
