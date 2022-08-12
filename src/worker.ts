@@ -59,7 +59,7 @@ export default class PandaLyricsWorker extends Worker {
     }
     const title = meta.title;
     const artist = meta.artist_name;
-    const songID = data.track.uri;
+    const songID = decodeURI(data.track.uri);
     return { title, artist, songID };
   }
 }
