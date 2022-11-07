@@ -30,12 +30,7 @@ export default class Socket extends EventTarget {
     });
 
     this.socket.addEventListener('error', () => {
-      if (this.tickTimer) {
-        clearInterval(this.tickTimer);
-      }
-      setTimeout(() => {
-        this.connect();
-      }, 1000);
+      this.socket?.close();
     });
   }
 
